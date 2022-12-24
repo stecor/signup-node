@@ -8,6 +8,7 @@ require('dotenv').config()
 const apiKey = process.env.KEY
 const listID = process.env.ID
 const https = require('https')
+const { url } = require('inspector')
 
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -32,8 +33,20 @@ app.post('/', function (req, res) {
   }
 
   const jsonData = JSON.stringify(data)
+  const url = 'https://us21.api.mailchimp.com/3.0/lists/' + listID
+  const options = {
+    method: 'POST',
+    auth: 'stefano1:' + apiKey,
+  }
 
-  //console.log(firstName, lastName, email)
+  const request = https.request(url, options, function (response) {
+    response.on('data', function (data) {
+      console.log(JSON.parse(data))
+    })
+  })
+
+  request.write(jsonData)
+  request.end()
 })
 
 app.listen(port, () => console.log(`Server listening on port ${port}!`))
